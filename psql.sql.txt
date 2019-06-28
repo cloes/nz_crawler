@@ -1,0 +1,60 @@
+//company表
+create table company
+(
+  id serial PRIMARY KEY,
+  company_number int,
+  name character varying(256),
+  address text,
+  
+); 
+
+
+//director表
+create table director
+(
+  id serial PRIMARY KEY,
+  company_id int,
+  ull_legal_name character varying(256),
+  Residential_Address text,
+  Appointment_Date date
+); 
+
+//shareholding表
+create table shareholding
+(
+  id serial PRIMARY KEY,
+  company_id int,
+  total_Number_of_Shares,int,
+  extensive Shareholding enum('yes','no'),
+  Appointment_Date date
+); 
+
+//shareholders表，持股股东表
+create table shareholders
+(
+	id serial PRIMARY KEY,
+	shareholding_id int,
+	shares varchar(128),
+	full_legal_name varchar(128),
+	address varchar(256)
+)
+
+
+//shareholders_history表，是旧股东的资料
+create table shareholders_history
+(
+	id serial PRIMARY KEY,
+	shareholding_id int,
+	shares varchar(128),
+	full_legal_name varchar(128),
+	vacation_date date
+)
+
+
+
+
+
+
+
+
+
