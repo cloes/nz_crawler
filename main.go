@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gocolly/colly"
@@ -33,8 +34,18 @@ func handelfunc(e *colly.HTMLElement){
 }
 */
 
-func handelfunc(e *colly.HTMLElement) {
-	fmt.Println("found!")
+func handelCompanyNamefunc(e *colly.HTMLElement) {
+	key := strings.TrimRight(e.ChildText("label.SCR011_04_003"), ":")
+
+	e.DOM.Find("label.SCR011_04_003").Remove()
+	value := strings.Trim(e.DOM.Text(), "\n")
+
+	fmt.Println(key, value)
+}
+
+func handelNZBNfunc(e *colly.HTMLElement) {
+
+	fmt.Println("found2!")
 	fmt.Println(e.Text)
 }
 
@@ -47,7 +58,10 @@ func main() {
 		// Cache responses to prevent multiple download of pages
 		// even if the collector is restarted
 		colly.CacheDir("./coursera_cache"),
+		colly.UserAgent("None"),
 	)
+	// 设置超时时间为3秒
+	c.SetRequestTimeout(3 * time.Second)
 
 	// Create another collector to scrape course details
 	//detailCollector := c.Clone()
@@ -73,12 +87,8 @@ func main() {
 
 	*/
 
-	c.OnHTML("div.readonly.companySummary > div:first-child", handelfunc)
-	//c.OnHTML("div.readonly.companySummary > div:first-child", handelfunc)
-
-	//c.OnHTML("div.readonly.companySummary > div:nth-child(2)", handelfunc)
-
-	//c.OnHTML("div.readonly.companySummary > div:nth-child(3)", handelfunc)
+	c.OnHTML("div.readonly.companySummary > div:first-child", handelCompanyNamefunc)
+	c.OnHTML("div.readonly.companySummary > div:nth-child(2)", handelNZBNfunc)
 
 	// Before making a request print "Visiting ..."
 	c.OnRequest(func(r *colly.Request) {
@@ -140,8 +150,14 @@ func main() {
 		}
 	*/
 
+	// Set error handler
+	c.OnError(func(r *colly.Response, err error) {
+		//fmt.Println("Request URL:", r.Request.URL, "failed with response:", r, "\nError:", err)
+		fmt.Println("Request URL:", r.Request.URL, "failed with response:", r.StatusCode, "\nError:", err)
+	})
+
 	start := time.Now()
-	for companyNumber := 1908322; companyNumber < 1908322+5; companyNumber++ {
+	for companyNumber := 1908322; companyNumber < 1908322+1; companyNumber++ {
 		//c.Visit("https://app.companiesoffice.govt.nz/companies/app/ui/pages/companies/1908322")
 		//https://app.companiesoffice.govt.nz/companies/app/ui/pages/companies/1908322/detail
 		//fmt.Println(companyNumber)
