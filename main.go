@@ -10,17 +10,16 @@ import (
 	"github.com/gocolly/colly"
 )
 
-// Course stores information about a coursera course
-type Course struct {
-	Title       string
-	Description string
-	Creator     string
-	Level       string
-	URL         string
-	Language    string
-	Commitment  string
-	HowToPass   string
-	Rating      string
+type PageData struct {
+	companyNumber           string
+	NZBN                    string
+	IncorporationDate       string
+	CompanyStatus           string
+	EntityType              string
+	ConstitutionFiled       string
+	RegisteredOfficeAddress string
+	AddressforService       string
+	AddressforShareRegister string
 }
 
 /*
@@ -34,34 +33,47 @@ func handelfunc(e *colly.HTMLElement){
 }
 */
 
+var Data = new(PageData)
+
 func handelCompanyNamefunc(e *colly.HTMLElement) {
-	key := strings.TrimRight(e.ChildText("label.SCR011_04_003"), ":")
+	//key := strings.TrimRight(e.ChildText("label.SCR011_04_003"), ":")
 
 	e.DOM.Find("label.SCR011_04_003").Remove()
 	value := strings.Trim(e.DOM.Text(), "\n")
-
-	fmt.Println(key, value)
+	Data.companyNumber = value
+	fmt.Println(value)
 }
 
 func handelNZBNfunc(e *colly.HTMLElement) {
+	e.DOM.Find("label.SCR011_04_003").Remove()
+	value := strings.Trim(e.DOM.Text(), "\n")
+	Data.NZBN = value
+	fmt.Println(Data.NZBN)
+}
 
-	fmt.Println("found2!")
-	fmt.Println(e.Text)
+func handelOfficeAddressfunc(e *colly.HTMLElement) {
+	registeredOfficeAddress := e.ChildText("div:nth-child(3) > div.addressLine")
+	Data.RegisteredOfficeAddress = strings.Replace(registeredOfficeAddress, "\n", "", -1)
+
+	addressforService := e.ChildText("div:nth-child(5) > div.addressLine")
+	Data.AddressforService = strings.Replace(addressforService, "\n", "", -1)
+
+	addressforShareRegister := e.ChildText("div:nth-child(8) > div.addressLine")
+	Data.AddressforShareRegister = strings.Replace(addressforShareRegister, "\n", "", -1)
 }
 
 func main() {
 	// Instantiate default collector
 	c := colly.NewCollector(
-		// Visit only domains: coursera.org, www.coursera.org
 		colly.AllowedDomains("app.companiesoffice.govt.nz"),
 
 		// Cache responses to prevent multiple download of pages
 		// even if the collector is restarted
-		colly.CacheDir("./coursera_cache"),
+		colly.CacheDir("./cz_cache"),
 		colly.UserAgent("None"),
 	)
 	// 设置超时时间为3秒
-	c.SetRequestTimeout(3 * time.Second)
+	//c.SetRequestTimeout(5 * time.Second)
 
 	// Create another collector to scrape course details
 	//detailCollector := c.Clone()
@@ -89,6 +101,7 @@ func main() {
 
 	c.OnHTML("div.readonly.companySummary > div:first-child", handelCompanyNamefunc)
 	c.OnHTML("div.readonly.companySummary > div:nth-child(2)", handelNZBNfunc)
+	c.OnHTML("div #addressPanel", handelOfficeAddressfunc)
 
 	// Before making a request print "Visiting ..."
 	c.OnRequest(func(r *colly.Request) {
