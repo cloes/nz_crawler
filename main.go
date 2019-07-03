@@ -119,15 +119,15 @@ func handelShareholderfunc(e *colly.HTMLElement) {
 		Data.ShareholderAllocations = append(Data.ShareholderAllocations, *Allocation)
 	})
 
-	for _, Allocation := range Data.ShareholderAllocations {
-		fmt.Println(Allocation.Percentage)
-		for _, holder := range Allocation.Shareholders {
-			fmt.Println(holder.Name)
-			fmt.Println("***************")
-			fmt.Println(holder.Address)
-			fmt.Println("*******end********")
-		}
-	}
+	//for _, Allocation := range Data.ShareholderAllocations {
+	//	fmt.Println(Allocation.Percentage)
+	//	for _, holder := range Allocation.Shareholders {
+	//		fmt.Println(holder.Name)
+	//		fmt.Println("***************")
+	//		fmt.Println(holder.Address)
+	//		fmt.Println("*******end********")
+	//	}
+	//}
 
 	//fmt.Println(Data.ShareholderAllocations)
 	//tmp := e.ChildAttrs("span.shareLabel","Text")
