@@ -20,6 +20,9 @@ type PageData struct {
 	RegisteredOfficeAddress string
 	AddressforService       string
 	AddressforShareRegister string
+	FullLegalName           string
+	ResidentialAddress      string
+	AppointmentDate         string
 }
 
 /*
@@ -62,6 +65,24 @@ func handelOfficeAddressfunc(e *colly.HTMLElement) {
 	Data.AddressforShareRegister = strings.Replace(addressforShareRegister, "\n", "", -1)
 }
 
+func handelDirectorfunc(e *colly.HTMLElement) {
+	e.DOM.Find("div.row:nth-child(1) > label").Remove()
+	FullLegalName := e.DOM.Find("div.row:nth-child(1)").Text()
+	FullLegalName = strings.Replace(FullLegalName, "\n", "", -1)
+	FullLegalName = strings.Trim(FullLegalName, " ")
+	Data.FullLegalName = FullLegalName
+
+	e.DOM.Find("div.row:nth-child(2) > label").Remove()
+	ResidentialAddress := e.DOM.Find("div.row:nth-child(2)").Text()
+	ResidentialAddress = strings.Replace(ResidentialAddress, "\n", "", -1)
+	Data.ResidentialAddress = ResidentialAddress
+
+	e.DOM.Find("div.row:nth-child(3) > label").Remove()
+	AppointmentDate := e.DOM.Find("div.row:nth-child(3)").Text()
+	AppointmentDate = strings.Trim(AppointmentDate, "\n")
+	Data.AppointmentDate = AppointmentDate
+}
+
 func main() {
 	// Instantiate default collector
 	c := colly.NewCollector(
@@ -102,6 +123,7 @@ func main() {
 	c.OnHTML("div.readonly.companySummary > div:first-child", handelCompanyNamefunc)
 	c.OnHTML("div.readonly.companySummary > div:nth-child(2)", handelNZBNfunc)
 	c.OnHTML("div #addressPanel", handelOfficeAddressfunc)
+	c.OnHTML("div #directorsPanel", handelDirectorfunc)
 
 	// Before making a request print "Visiting ..."
 	c.OnRequest(func(r *colly.Request) {
