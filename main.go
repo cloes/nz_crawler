@@ -20,6 +20,12 @@ type Allocation struct {
 	Shareholders []Shareholder
 }
 
+type Director struct {
+	FullLegalName      string
+	ResidentialAddress string
+	AppointmentDate    string
+}
+
 type PageData struct {
 	companyNumber           string
 	NZBN                    string
@@ -30,9 +36,7 @@ type PageData struct {
 	RegisteredOfficeAddress string
 	AddressforService       string
 	AddressforShareRegister string
-	FullLegalName           string
-	ResidentialAddress      string
-	AppointmentDate         string
+	Directors               []Director
 	ShareholderAllocations  []Allocation
 }
 
@@ -77,21 +81,33 @@ func handelOfficeAddressfunc(e *colly.HTMLElement) {
 }
 
 func handelDirectorfunc(e *colly.HTMLElement) {
-	e.DOM.Find("div.row:nth-child(1) > label").Remove()
-	FullLegalName := e.DOM.Find("div.row:nth-child(1)").Text()
-	FullLegalName = strings.Replace(FullLegalName, "\n", "", -1)
-	FullLegalName = strings.Trim(FullLegalName, " ")
-	Data.FullLegalName = FullLegalName
+	e.ForEach("table", func(i int, element *colly.HTMLElement) {
+		Director := new(Director)
 
-	e.DOM.Find("div.row:nth-child(2) > label").Remove()
-	ResidentialAddress := e.DOM.Find("div.row:nth-child(2)").Text()
-	ResidentialAddress = strings.Replace(ResidentialAddress, "\n", "", -1)
-	Data.ResidentialAddress = ResidentialAddress
+		element.DOM.Find("div.row:nth-child(1) > label").Remove()
+		FullLegalName := element.DOM.Find("div.row:nth-child(1)").Text()
+		FullLegalName = strings.Replace(FullLegalName, "\n", "", -1)
+		FullLegalName = strings.Trim(FullLegalName, " ")
+		Director.FullLegalName = FullLegalName
 
-	e.DOM.Find("div.row:nth-child(3) > label").Remove()
-	AppointmentDate := e.DOM.Find("div.row:nth-child(3)").Text()
-	AppointmentDate = strings.Trim(AppointmentDate, "\n")
-	Data.AppointmentDate = AppointmentDate
+		element.DOM.Find("div.row:nth-child(2) > label").Remove()
+		ResidentialAddress := element.DOM.Find("div.row:nth-child(2)").Text()
+		ResidentialAddress = strings.Replace(ResidentialAddress, "\n", "", -1)
+		Director.ResidentialAddress = ResidentialAddress
+
+		element.DOM.Find("div.row:nth-child(3) > label").Remove()
+		AppointmentDate := element.DOM.Find("div.row:nth-child(3)").Text()
+		AppointmentDate = strings.Trim(AppointmentDate, "\n")
+		Director.AppointmentDate = AppointmentDate
+
+		Data.Directors = append(Data.Directors, *Director)
+	})
+
+	//for _,v := range Data.Directors {
+	//	fmt.Println(v.FullLegalName)
+	//	fmt.Println(v.ResidentialAddress)
+	//	fmt.Println(v.AppointmentDate)
+	//}
 }
 
 func handelShareholderfunc(e *colly.HTMLElement) {
@@ -119,18 +135,17 @@ func handelShareholderfunc(e *colly.HTMLElement) {
 		Data.ShareholderAllocations = append(Data.ShareholderAllocations, *Allocation)
 	})
 
-	//for _, Allocation := range Data.ShareholderAllocations {
-	//	fmt.Println(Allocation.Percentage)
-	//	for _, holder := range Allocation.Shareholders {
-	//		fmt.Println(holder.Name)
-	//		fmt.Println("***************")
-	//		fmt.Println(holder.Address)
-	//		fmt.Println("*******end********")
-	//	}
-	//}
-
-	//fmt.Println(Data.ShareholderAllocations)
-	//tmp := e.ChildAttrs("span.shareLabel","Text")
+	/*
+		for _, Allocation := range Data.ShareholderAllocations {
+			fmt.Println(Allocation.Percentage)
+			for _, holder := range Allocation.Shareholders {
+				fmt.Println(holder.Name)
+				fmt.Println("***************")
+				fmt.Println(holder.Address)
+				fmt.Println("*******end********")
+			}
+		}
+	*/
 }
 
 func main() {
@@ -144,7 +159,7 @@ func main() {
 		colly.UserAgent("None"),
 	)
 	// 设置超时时间为20秒
-	c.SetRequestTimeout(20 * time.Second)
+	c.SetRequestTimeout(30 * time.Second)
 
 	// Create another collector to scrape course details
 	//detailCollector := c.Clone()
