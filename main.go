@@ -10,6 +10,16 @@ import (
 	"github.com/gocolly/colly"
 )
 
+type Shareholder struct {
+	Name    string
+	Address string
+}
+
+type Allocation struct {
+	Percentage   float64
+	Shareholders []Shareholder
+}
+
 type PageData struct {
 	companyNumber           string
 	NZBN                    string
@@ -23,6 +33,7 @@ type PageData struct {
 	FullLegalName           string
 	ResidentialAddress      string
 	AppointmentDate         string
+	ShareholderAllocations  []Allocation
 }
 
 /*
@@ -83,6 +94,45 @@ func handelDirectorfunc(e *colly.HTMLElement) {
 	Data.AppointmentDate = AppointmentDate
 }
 
+func handelShareholderfunc(e *colly.HTMLElement) {
+	e.ForEach("div.allocationDetail", func(i int, element *colly.HTMLElement) {
+		Allocation := new(Allocation)
+
+		SharePercentage := element.ChildText("span.shareLabel")
+		SharePercentage = strings.ReplaceAll(SharePercentage, "(", "")
+		SharePercentage = strings.ReplaceAll(SharePercentage, ")", "")
+		SharePercentage = strings.ReplaceAll(SharePercentage, "%", "")
+		Allocation.Percentage, _ = strconv.ParseFloat(SharePercentage, 64)
+
+		Shareholder := new(Shareholder)
+		element.ForEach("div.labelValue.col2", func(j int, DivElement *colly.HTMLElement) {
+			if j%2 == 0 {
+				ShareholderName := strings.TrimSpace(DivElement.Text)
+				Shareholder.Name = ShareholderName
+			} else {
+				ShareholderAddress := strings.TrimSpace(DivElement.Text)
+				ShareholderAddress = strings.ReplaceAll(ShareholderAddress, "\n", "")
+				Shareholder.Address = ShareholderAddress
+				Allocation.Shareholders = append(Allocation.Shareholders, *Shareholder)
+			}
+		})
+		Data.ShareholderAllocations = append(Data.ShareholderAllocations, *Allocation)
+	})
+
+	for _, Allocation := range Data.ShareholderAllocations {
+		fmt.Println(Allocation.Percentage)
+		for _, holder := range Allocation.Shareholders {
+			fmt.Println(holder.Name)
+			fmt.Println("***************")
+			fmt.Println(holder.Address)
+			fmt.Println("*******end********")
+		}
+	}
+
+	//fmt.Println(Data.ShareholderAllocations)
+	//tmp := e.ChildAttrs("span.shareLabel","Text")
+}
+
 func main() {
 	// Instantiate default collector
 	c := colly.NewCollector(
@@ -93,8 +143,8 @@ func main() {
 		colly.CacheDir("./cz_cache"),
 		colly.UserAgent("None"),
 	)
-	// 设置超时时间为3秒
-	//c.SetRequestTimeout(5 * time.Second)
+	// 设置超时时间为20秒
+	c.SetRequestTimeout(20 * time.Second)
 
 	// Create another collector to scrape course details
 	//detailCollector := c.Clone()
@@ -124,6 +174,7 @@ func main() {
 	c.OnHTML("div.readonly.companySummary > div:nth-child(2)", handelNZBNfunc)
 	c.OnHTML("div #addressPanel", handelOfficeAddressfunc)
 	c.OnHTML("div #directorsPanel", handelDirectorfunc)
+	c.OnHTML("div #shareholdersPanel", handelShareholderfunc)
 
 	// Before making a request print "Visiting ..."
 	c.OnRequest(func(r *colly.Request) {
@@ -192,9 +243,10 @@ func main() {
 	})
 
 	start := time.Now()
-	for companyNumber := 1908322; companyNumber < 1908322+1; companyNumber++ {
+	for companyNumber := 1830488; companyNumber < 1830488+1; companyNumber++ {
 		//c.Visit("https://app.companiesoffice.govt.nz/companies/app/ui/pages/companies/1908322")
 		//https://app.companiesoffice.govt.nz/companies/app/ui/pages/companies/1908322/detail
+		//https://app.companiesoffice.govt.nz/companies/app/ui/pages/companies/1830488/detail
 		//fmt.Println(companyNumber)
 		c.Visit("https://app.companiesoffice.govt.nz/companies/app/ui/pages/companies/" + strconv.Itoa(companyNumber) + "/detail")
 	}
