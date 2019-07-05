@@ -27,7 +27,7 @@ type Director struct {
 }
 
 type PageData struct {
-	companyNumber           string
+	CompanyNumber           string
 	NZBN                    string
 	IncorporationDate       string
 	CompanyStatus           string
@@ -58,7 +58,7 @@ func handelCompanyNamefunc(e *colly.HTMLElement) {
 
 	e.DOM.Find("label.SCR011_04_003").Remove()
 	value := strings.Trim(e.DOM.Text(), "\n")
-	Data.companyNumber = value
+	Data.CompanyNumber = value
 	fmt.Println(value)
 }
 
@@ -135,17 +135,16 @@ func handelShareholderfunc(e *colly.HTMLElement) {
 		Data.ShareholderAllocations = append(Data.ShareholderAllocations, *Allocation)
 	})
 
-	/*
-		for _, Allocation := range Data.ShareholderAllocations {
-			fmt.Println(Allocation.Percentage)
-			for _, holder := range Allocation.Shareholders {
-				fmt.Println(holder.Name)
-				fmt.Println("***************")
-				fmt.Println(holder.Address)
-				fmt.Println("*******end********")
-			}
-		}
-	*/
+	//for _, Allocation := range Data.ShareholderAllocations {
+	//	fmt.Println(Allocation.Percentage)
+	//	for _, holder := range Allocation.Shareholders {
+	//		fmt.Println(holder.Name2)
+	//		fmt.Println("***************")
+	//		fmt.Println(holder.Address)
+	//		fmt.Println("*******end********")
+	//	}
+	//}
+
 }
 
 func main() {
@@ -242,7 +241,7 @@ func main() {
 	*/
 
 	/*
-		for companyNumber :=0; companyNumber < 10000000; companyNumber++  {
+		for CompanyNumber :=0; CompanyNumber < 10000000; CompanyNumber++  {
 			//https://app.companiesoffice.govt.nz/companies/app/ui/pages/companies/1908322
 			//http://app.companiesoffice.govt.nz/co/1908322
 
@@ -258,13 +257,15 @@ func main() {
 	})
 
 	start := time.Now()
-	for companyNumber := 1830488; companyNumber < 1830488+1; companyNumber++ {
+	for companyNumber := 1908322; companyNumber < 1908322+1; companyNumber++ {
 		//c.Visit("https://app.companiesoffice.govt.nz/companies/app/ui/pages/companies/1908322")
 		//https://app.companiesoffice.govt.nz/companies/app/ui/pages/companies/1908322/detail
 		//https://app.companiesoffice.govt.nz/companies/app/ui/pages/companies/1830488/detail
-		//fmt.Println(companyNumber)
+		//fmt.Println(CompanyNumber)
 		c.Visit("https://app.companiesoffice.govt.nz/companies/app/ui/pages/companies/" + strconv.Itoa(companyNumber) + "/detail")
 	}
+
+	insert(Data)
 	end := time.Since(start)
 	fmt.Println(end)
 

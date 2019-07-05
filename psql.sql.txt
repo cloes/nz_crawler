@@ -3,9 +3,7 @@ create table company
 (
   id serial PRIMARY KEY,
   company_number int,
-  name character varying(256),
-  address text,
-  
+  name character varying(256)
 ); 
 
 

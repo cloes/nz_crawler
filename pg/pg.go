@@ -1,20 +1,24 @@
-package pg
+package main
 
 import (
 	"fmt"
-
 	"github.com/go-pg/pg"
 )
 
 // Params 测试用途
 type Params struct {
-	X int
-	Y int
+	XinDin int
+	Y      int
 }
 
 // Sum 返回相加值
 func (p *Params) Sum() int {
-	return p.X + p.Y
+	return p.XinDin + p.Y
+}
+
+type Mystruct struct {
+	Id    int
+	Name2 string
 }
 
 // go-pg recognizes `?` in queries as placeholders and replaces them
@@ -26,69 +30,81 @@ func (p *Params) Sum() int {
 //   - JSON/JSONB gets `\u0000` escaped as `\\u0000`.
 func main() {
 
-	db := pg.Connect(&pg.Options{
+	var mystruct = new(Mystruct)
+	mystruct.Id = 100
+	mystruct.Name2 = "good"
+
+	/*
+		db := pg.Connect(&pg.Options{
+			User:     "postgres",
+			Password: "123456",
+			Database: "mydb",
+		})
+		defer db.Close()
+
+		var n int
+		//_, err := db.QueryOne(pg.Scan(&n), "insert into my_table values (default,'apple2') RETURNING id")
+		_, err := db.QueryOne(pg.Scan(&n), "insert into my_table values (default,?Name2) RETURNING id",mystruct)
+
+		//panicIf(err)
+		fmt.Print(err)
+		//panic(err)
+		fmt.Println(n)
+
+	*/
+
+	pgdb := pg.Connect(&pg.Options{
 		User:     "postgres",
 		Password: "123456",
 		Database: "mydb",
 	})
-	defer db.Close()
+	var num int
 
-	var n int
-	_, err := db.QueryOne(pg.Scan(&n), "insert into my_table values (4,'apple2') RETURNING id")
-	//panicIf(err)
-	fmt.Print(err)
-	//panic(err)
-	fmt.Println(n)
+	// Simple params.
+	_, err := pgdb.Query(pg.Scan(&num), "SELECT ?", 42)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("simple:", num)
 
-	/*
-		var num int
+	// Indexed params.
+	_, err = pgdb.Query(pg.Scan(&num), "SELECT ?0 + ?0", 1)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("indexed:", num)
 
-		// Simple params.
-		_, err := pgdb.Query(pg.Scan(&num), "SELECT ?", 42)
-		if err != nil {
-			panic(err)
-		}
-		fmt.Println("simple:", num)
+	// Named params.
+	params := &Params{
+		XinDin: 10,
+		Y:      18,
+	}
+	//_, err = pgdb.Query(pg.Scan(&num), "SELECT ?x + ?y + ?Sum", params)
+	_, err = pgdb.Query(pg.Scan(&num), "SELECT ?xin_din + ?y ", params)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("named:", num)
 
-		// Indexed params.
-		_, err = pgdb.Query(pg.Scan(&num), "SELECT ?0 + ?0", 1)
-		if err != nil {
-			panic(err)
-		}
-		fmt.Println("indexed:", num)
+	// Global params.
+	_, err = pgdb.WithParam("z", 1).Query(pg.Scan(&num), "SELECT ?xin_din + ?y + ?z", params)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("global:", num)
 
-		// Named params.
-		params := &Params{
-			X:  1,
-			Y:  1,
-		}
-		_, err = pgdb.Query(pg.Scan(&num), "SELECT ?x + ?y + ?Sum", params)
-		if err != nil {
-			panic(err)
-		}
-		fmt.Println("named:", num)
-
-		// Global params.
-		_, err = pgdb.WithParam("z", 1).Query(pg.Scan(&num), "SELECT ?x + ?y + ?z", params)
-		if err != nil {
-			panic(err)
-		}
-		fmt.Println("global:", num)
-
-		// Model params.
-		var tableName, tableAlias, tableColumns, columns string
-		_, err = pgdb.Model(&Params{}).Query(
-			pg.Scan(&tableName, &tableAlias, &tableColumns, &columns),
-			"SELECT '?TableName', '?TableAlias', '?TableColumns', '?Columns'",
-		)
-		if err != nil {
-			panic(err)
-		}
-		fmt.Println("table name:", tableName)
-		fmt.Println("table alias:", tableAlias)
-		fmt.Println("table columns:", tableColumns)
-		fmt.Println("columns:", columns)
-
-	*/
+	// Model params.
+	var tableName, tableAlias, tableColumns, columns string
+	_, err = pgdb.Model(&Mystruct{}).Query(
+		pg.Scan(&tableName, &tableAlias, &tableColumns, &columns),
+		"SELECT '?TableName', '?TableAlias', '?TableColumns', '?Columns'",
+	)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("table name:", tableName)
+	fmt.Println("table alias:", tableAlias)
+	fmt.Println("table columns:", tableColumns)
+	fmt.Println("columns:", columns)
 
 }
