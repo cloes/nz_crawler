@@ -4,6 +4,7 @@ create table company
   id serial PRIMARY KEY,
   company_number int,
   name character varying(256)
+  nzbn character varying(256)
 ); 
 
 

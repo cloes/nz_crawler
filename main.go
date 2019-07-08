@@ -54,11 +54,31 @@ func handelfunc(e *colly.HTMLElement){
 
 var Data = new(PageData)
 
-func handelCompanyNumberfunc(e *colly.HTMLElement) {
-	e.DOM.Find("label.SCR011_04_003").Remove()
-	value := strings.Trim(e.DOM.Text(), "\n")
-	Data.CompanyNumber = value
-	fmt.Println(value)
+func handelCompanySummaryfunc(e *colly.HTMLElement) {
+	e.DOM.Find("div.readonly.companySummary > div.row:nth-child(1) > label.SCR011_04_003").Remove()
+	CompanyNumber := e.DOM.Find("div.readonly.companySummary > div.row:nth-child(1)").Text()
+	CompanyNumber = strings.Trim(CompanyNumber, "\n")
+	Data.CompanyNumber = CompanyNumber
+	println(Data.CompanyNumber)
+
+	e.DOM.Find("div.readonly.companySummary > div.row:nth-child(2) > label.SCR011_04_003").Remove()
+	NZBN := e.DOM.Find("div.readonly.companySummary > div.row:nth-child(2)").Text()
+	NZBN = strings.Trim(NZBN, "\n")
+	Data.NZBN = NZBN
+	println(Data.NZBN)
+
+	e.DOM.Find("div.readonly.companySummary > div.row:nth-child(3) > label.SCR011_04_002").Remove()
+	IncorporationDate := e.DOM.Find("div.readonly.companySummary > div.row:nth-child(3)").Text()
+	IncorporationDate = strings.Trim(IncorporationDate, "\n")
+	Data.IncorporationDate = IncorporationDate
+	println(Data.IncorporationDate)
+
+	e.DOM.Find("div.readonly.companySummary > div.row:nth-child(4) > label.SCR011_04_022").Remove()
+	CompanyStatus := e.DOM.Find("div.readonly.companySummary > div.row:nth-child(4)").Text()
+	CompanyStatus = strings.Trim(CompanyStatus, "\n")
+	CompanyStatus = strings.TrimSpace(CompanyStatus)
+	Data.CompanyStatus = CompanyStatus
+	println(Data.CompanyStatus)
 }
 
 func handelCompanyNamefunc(e *colly.HTMLElement) {
@@ -66,12 +86,12 @@ func handelCompanyNamefunc(e *colly.HTMLElement) {
 	Data.CompanyName = strings.TrimSpace(e.DOM.Text())
 }
 
-func handelNZBNfunc(e *colly.HTMLElement) {
-	e.DOM.Find("label.SCR011_04_003").Remove()
-	value := strings.Trim(e.DOM.Text(), "\n")
-	Data.NZBN = value
-	fmt.Println(Data.NZBN)
-}
+//func handelNZBNfunc(e *colly.HTMLElement) {
+//	e.DOM.Find("label.SCR011_04_003").Remove()
+//	value := strings.Trim(e.DOM.Text(), "\n")
+//	Data.NZBN = value
+//	fmt.Println(Data.NZBN)
+//}
 
 func handelOfficeAddressfunc(e *colly.HTMLElement) {
 	registeredOfficeAddress := e.ChildText("div:nth-child(3) > div.addressLine")
@@ -188,9 +208,8 @@ func main() {
 
 	*/
 
-	c.OnHTML("div.readonly.companySummary > div:first-child", handelCompanyNumberfunc)
+	c.OnHTML("div.readonly.companySummary", handelCompanySummaryfunc)
 	c.OnHTML("div.panelContainer > div.leftPanel > div.row:first-child", handelCompanyNamefunc)
-	c.OnHTML("div.readonly.companySummary > div:nth-child(2)", handelNZBNfunc)
 	c.OnHTML("div #addressPanel", handelOfficeAddressfunc)
 	c.OnHTML("div #directorsPanel", handelDirectorfunc)
 	c.OnHTML("div #shareholdersPanel", handelShareholderfunc)
