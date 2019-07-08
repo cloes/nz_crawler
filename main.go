@@ -28,6 +28,7 @@ type Director struct {
 
 type PageData struct {
 	CompanyNumber           string
+	CompanyName             string
 	NZBN                    string
 	IncorporationDate       string
 	CompanyStatus           string
@@ -58,6 +59,11 @@ func handelCompanyNumberfunc(e *colly.HTMLElement) {
 	value := strings.Trim(e.DOM.Text(), "\n")
 	Data.CompanyNumber = value
 	fmt.Println(value)
+}
+
+func handelCompanyNamefunc(e *colly.HTMLElement) {
+	e.DOM.Find("span.entityIdentifier").Remove()
+	Data.CompanyName = strings.TrimSpace(e.DOM.Text())
 }
 
 func handelNZBNfunc(e *colly.HTMLElement) {
@@ -183,6 +189,7 @@ func main() {
 	*/
 
 	c.OnHTML("div.readonly.companySummary > div:first-child", handelCompanyNumberfunc)
+	c.OnHTML("div.panelContainer > div.leftPanel > div.row:first-child", handelCompanyNamefunc)
 	c.OnHTML("div.readonly.companySummary > div:nth-child(2)", handelNZBNfunc)
 	c.OnHTML("div #addressPanel", handelOfficeAddressfunc)
 	c.OnHTML("div #directorsPanel", handelDirectorfunc)
