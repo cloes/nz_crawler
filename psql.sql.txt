@@ -19,7 +19,7 @@ create table director
 (
   id serial PRIMARY KEY,
   company_id int,
-  ull_legal_name character varying(256),
+  full_legal_name character varying(256),
   Residential_Address text,
   Appointment_Date date
 ); 

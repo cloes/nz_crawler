@@ -41,17 +41,6 @@ type PageData struct {
 	ShareholderAllocations  []Allocation
 }
 
-/*
-func handelfunc(e *colly.HTMLElement){
-	//fmt.Println("found!")
-
-	fmt.Print(e.ChildText("label"))
-	e.DOM.Find("label").Remove()
-	fmt.Println(strings.TrimSpace(e.DOM.Text()))
-
-}
-*/
-
 var Data = new(PageData)
 
 func handelCompanySummaryfunc(e *colly.HTMLElement) {
@@ -59,37 +48,55 @@ func handelCompanySummaryfunc(e *colly.HTMLElement) {
 	CompanyNumber := e.DOM.Find("div.readonly.companySummary > div.row:nth-child(1)").Text()
 	CompanyNumber = strings.Trim(CompanyNumber, "\n")
 	Data.CompanyNumber = CompanyNumber
-	println(Data.CompanyNumber)
+	fmt.Printf("CompanyNumber:%v\n", Data.CompanyNumber)
 
 	e.DOM.Find("div.readonly.companySummary > div.row:nth-child(2) > label.SCR011_04_003").Remove()
 	NZBN := e.DOM.Find("div.readonly.companySummary > div.row:nth-child(2)").Text()
 	NZBN = strings.Trim(NZBN, "\n")
 	Data.NZBN = NZBN
-	println(Data.NZBN)
+	fmt.Printf("NZBN:%v\n", Data.NZBN)
 
 	e.DOM.Find("div.readonly.companySummary > div.row:nth-child(3) > label.SCR011_04_002").Remove()
 	IncorporationDate := e.DOM.Find("div.readonly.companySummary > div.row:nth-child(3)").Text()
 	IncorporationDate = strings.Trim(IncorporationDate, "\n")
 	Data.IncorporationDate = IncorporationDate
-	println(Data.IncorporationDate)
+	fmt.Printf("IncorporationDate:%v\n", Data.IncorporationDate)
 
 	e.DOM.Find("div.readonly.companySummary > div.row:nth-child(4) > label.SCR011_04_022").Remove()
 	CompanyStatus := e.DOM.Find("div.readonly.companySummary > div.row:nth-child(4)").Text()
 	CompanyStatus = strings.TrimSpace(CompanyStatus)
 	Data.CompanyStatus = CompanyStatus
-	println(Data.CompanyStatus)
+	fmt.Printf("CompanyStatus:%v\n", Data.CompanyStatus)
 
-	e.DOM.Find("div.readonly.companySummary > div.row:nth-child(8) > label.SCR011_04_028").Remove()
-	EntityType := e.DOM.Find("div.readonly.companySummary > div.row:nth-child(8)").Text()
+	tmpElement := e.DOM.Find("div.readonly.companySummary > div.row").Has("label[for='entityType']")
+	EntityType := tmpElement.Contents().Eq(2).Text()
 	EntityType = strings.TrimSpace(EntityType)
 	Data.EntityType = EntityType
-	println(Data.EntityType)
+	fmt.Printf("EntityType:%v\n", Data.EntityType)
 
-	e.DOM.Find("div.readonly.companySummary > div.row:nth-child(9) > label.SCR011_04_029").Remove()
-	ConstitutionFiled := e.DOM.Find("div.readonly.companySummary > div.row:nth-child(9)").Text()
-	ConstitutionFiled = strings.TrimSpace(ConstitutionFiled)
+	tmpElement = e.DOM.Find("div.readonly.companySummary > div.row").Has("label[for='constitutionFiled']")
+	var ConstitutionFiled string
+	if tmpElement.Find("a").Text() == "" {
+		ConstitutionFiled = strings.TrimSpace(tmpElement.Contents().Eq(2).Text())
+	} else {
+		ConstitutionFiled = tmpElement.Find("a").Text()
+	}
 	Data.ConstitutionFiled = ConstitutionFiled
-	println(Data.ConstitutionFiled)
+	fmt.Printf("ConstitutionFiled:%v\n", Data.ConstitutionFiled)
+
+	/*
+		e.DOM.Find("div.readonly.companySummary > div.row:nth-child(8) > label.SCR011_04_028").Remove()
+		EntityType := e.DOM.Find("div.readonly.companySummary > div.row:nth-child(8)").Text()
+		EntityType = strings.TrimSpace(EntityType)
+		Data.EntityType = EntityType
+		fmt.Printf("EntityType:%v\n",Data.EntityType)
+
+		e.DOM.Find("div.readonly.companySummary > div.row:nth-child(9) > label.SCR011_04_029").Remove()
+		ConstitutionFiled := e.DOM.Find("div.readonly.companySummary > div.row:nth-child(9)").Text()
+		ConstitutionFiled = strings.TrimSpace(ConstitutionFiled)
+		Data.ConstitutionFiled = ConstitutionFiled
+		fmt.Printf("ConstitutionFiled:%v\n",Data.ConstitutionFiled)
+	*/
 }
 
 func handelCompanyNamefunc(e *colly.HTMLElement) {
