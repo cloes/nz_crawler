@@ -1,11 +1,17 @@
 //company表
 create table company
 (
-  id serial PRIMARY KEY,
-  company_number int,
-  name character varying(256)
-  nzbn character varying(256)
-); 
+	id serial not null
+		constraint company_pkey
+			primary key,
+	company_number integer,
+	name varchar(256),
+	nzbn varchar(256),
+	incorporation_date date,
+	company_status varchar(32),
+	entity_type varchar(32),
+	constitution_filed varchar(32)
+);
 
 
 //director表
