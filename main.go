@@ -53,9 +53,7 @@ func handelfunc(e *colly.HTMLElement){
 
 var Data = new(PageData)
 
-func handelCompanyNamefunc(e *colly.HTMLElement) {
-	//key := strings.TrimRight(e.ChildText("label.SCR011_04_003"), ":")
-
+func handelCompanyNumberfunc(e *colly.HTMLElement) {
 	e.DOM.Find("label.SCR011_04_003").Remove()
 	value := strings.Trim(e.DOM.Text(), "\n")
 	Data.CompanyNumber = value
@@ -184,7 +182,7 @@ func main() {
 
 	*/
 
-	c.OnHTML("div.readonly.companySummary > div:first-child", handelCompanyNamefunc)
+	c.OnHTML("div.readonly.companySummary > div:first-child", handelCompanyNumberfunc)
 	c.OnHTML("div.readonly.companySummary > div:nth-child(2)", handelNZBNfunc)
 	c.OnHTML("div #addressPanel", handelOfficeAddressfunc)
 	c.OnHTML("div #directorsPanel", handelDirectorfunc)

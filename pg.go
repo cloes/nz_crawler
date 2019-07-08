@@ -15,10 +15,11 @@ func insert(value *PageData) {
 
 	err := db.RunInTransaction(func(tx *pg.Tx) error {
 		fmt.Println("================")
-		fmt.Print(value.CompanyNumber, value.NZBN)
 		var n int
 		_, err := tx.Query(pg.Scan(&n), "insert into company (company_number,nzbn) values (?company_number,?nzbn) RETURNING id", value)
 		return err
 	})
-	panic(err)
+	if err != nil {
+		panic(err)
+	}
 }
