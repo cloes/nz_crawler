@@ -31,6 +31,24 @@ func insert(value *PageData) {
 			}
 		}
 
+		var shareholdingAllocationId int
+		for _, allocation := range Data.ShareholderAllocations {
+			ShareholderAllocationInsertSQL := fmt.Sprintf("insert into shareholding_allocation (company_id,percentage) values (%d,?percentage) RETURNING id", companyId)
+			_, err = tx.Query(pg.Scan(&shareholdingAllocationId), ShareholderAllocationInsertSQL, allocation)
+
+			if err != nil {
+				return err
+			}
+
+			for _, shareholder := range allocation.Shareholders {
+				ShareholderInsertSQL := fmt.Sprintf("insert into shareholder (shareholding_allocation_id,name,address) values (%d,?name,?address)", shareholdingAllocationId)
+				_, err := tx.Exec(ShareholderInsertSQL, shareholder)
+
+				if err != nil {
+					return err
+				}
+			}
+		}
 		return nil
 	})
 

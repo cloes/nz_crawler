@@ -1,4 +1,3 @@
-//company表
 create table company
 (
 	id serial not null
@@ -13,53 +12,41 @@ create table company
 	constitution_filed varchar(32)
 );
 
+alter table company owner to postgres;
 
-//director表
 create table director
 (
-  id serial PRIMARY KEY,
-  company_id int,
-  full_legal_name character varying(256),
-  Residential_Address text,
-  Appointment_Date date
-); 
+	id serial not null
+		constraint director_pkey
+			primary key,
+	company_id integer,
+	full_legal_name varchar(256),
+	residential_address text,
+	appointment_date date
+);
 
-//shareholding表
-create table shareholding
+alter table director owner to postgres;
+
+create table shareholding_allocation
 (
-  id serial PRIMARY KEY,
-  company_id int,
-  total_Number_of_Shares,int,
-  extensive Shareholding enum('yes','no'),
-  Appointment_Date date
-); 
+	id serial not null
+		constraint shareholding_pkey
+			primary key,
+	company_id integer,
+	percentage double precision
+);
 
-//shareholders表，持股股东表
-create table shareholders
+alter table shareholding_allocation owner to postgres;
+
+create table shareholder
 (
-	id serial PRIMARY KEY,
-	shareholding_id int,
-	shares varchar(128),
-	full_legal_name varchar(128),
-	address varchar(256)
-)
+	id serial not null
+		constraint shareholder_pk
+			primary key,
+	shareholding_allocation_id integer,
+	name varchar(256),
+	address text
+);
 
-
-//shareholders_history表，是旧股东的资料
-create table shareholders_history
-(
-	id serial PRIMARY KEY,
-	shareholding_id int,
-	shares varchar(128),
-	full_legal_name varchar(128),
-	vacation_date date
-)
-
-
-
-
-
-
-
-
+alter table shareholder owner to postgres;
 

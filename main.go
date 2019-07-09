@@ -17,7 +17,7 @@ type Shareholder struct {
 
 type Allocation struct {
 	Percentage   float64
-	Shareholders []Shareholder
+	Shareholders []Shareholder //有可能两个shareholder共同占有一定比例的股份
 }
 
 type Director struct {
@@ -193,31 +193,7 @@ func main() {
 		colly.UserAgent("None"),
 	)
 	// 设置超时时间为20秒
-	c.SetRequestTimeout(30 * time.Second)
-
-	// Create another collector to scrape course details
-	//detailCollector := c.Clone()
-
-	//courses := make([]Course, 0, 200)
-
-	// On every a element which has href attribute call callback
-	/*
-		c.OnHTML("a[href]", func(e *colly.HTMLElement) {
-			// If attribute class is this long string return from callback
-			// As this a is irrelevant
-			if e.Attr("class") == "Button_1qxkboh-o_O-primary_cv02ee-o_O-md_28awn8-o_O-primaryLink_109aggg" {
-				return
-			}
-			link := e.Attr("href")
-			// If link start with browse or includes either signup or login return from callback
-			if !strings.HasPrefix(link, "/browse") || strings.Index(link, "=signup") > -1 || strings.Index(link, "=login") > -1 {
-				return
-			}
-			// start scaping the page under the link found
-			e.Request.Visit(link)
-		})
-
-	*/
+	c.SetRequestTimeout(60 * time.Second)
 
 	c.OnHTML("div.readonly.companySummary", handelCompanySummaryfunc)
 	c.OnHTML("div.panelContainer > div.leftPanel > div.row:first-child", handelCompanyNamefunc)
@@ -241,40 +217,6 @@ func main() {
 		})
 	*/
 
-	// Extract details of the course
-	/*
-		detailCollector.OnHTML(`div[id=rendered-content]`, func(e *colly.HTMLElement) {
-			log.Println("Course found", e.Request.URL)
-			title := e.ChildText(".course-title")
-			if title == "" {
-				log.Println("No title found", e.Request.URL)
-			}
-			course := Course{
-				Title:       title,
-				URL:         e.Request.URL.String(),
-				Description: e.ChildText("div.content"),
-				Creator:     e.ChildText("div.creator-names > span"),
-			}
-			// Iterate over rows of the table which contains different information
-			// about the course
-			e.ForEach("table.basic-info-table tr", func(_ int, el *colly.HTMLElement) {
-				switch el.ChildText("td:first-child") {
-				case "Language":
-					course.Language = el.ChildText("td:nth-child(2)")
-				case "Level":
-					course.Level = el.ChildText("td:nth-child(2)")
-				case "Commitment":
-					course.Commitment = el.ChildText("td:nth-child(2)")
-				case "How To Pass":
-					course.HowToPass = el.ChildText("td:nth-child(2)")
-				case "User Ratings":
-					course.Rating = el.ChildText("td:nth-child(2) div:nth-of-type(2)")
-				}
-			})
-			courses = append(courses, course)
-		})
-	*/
-
 	/*
 		for CompanyNumber :=0; CompanyNumber < 10000000; CompanyNumber++  {
 			//https://app.companiesoffice.govt.nz/companies/app/ui/pages/companies/1908322
@@ -292,7 +234,7 @@ func main() {
 	})
 
 	start := time.Now()
-	for companyNumber := 1908322; companyNumber < 1908322+1; companyNumber++ {
+	for companyNumber := 1830488; companyNumber < 1830488+1; companyNumber++ {
 		//c.Visit("https://app.companiesoffice.govt.nz/companies/app/ui/pages/companies/1908322")
 		//https://app.companiesoffice.govt.nz/companies/app/ui/pages/companies/1908322/detail
 		//https://app.companiesoffice.govt.nz/companies/app/ui/pages/companies/1830488/detail
