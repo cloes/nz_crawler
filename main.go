@@ -26,6 +26,12 @@ type Director struct {
 	AppointmentDate    string
 }
 
+type PreviousName struct {
+	CompanyName string
+	StartDate   string
+	EndDate     string
+}
+
 type PageData struct {
 	CompanyNumber           string
 	CompanyName             string
@@ -39,6 +45,7 @@ type PageData struct {
 	AddressforShareRegister string
 	Directors               []Director
 	ShareholderAllocations  []Allocation
+	PreviousNames           []PreviousName
 }
 
 var Data = new(PageData)
@@ -101,7 +108,15 @@ func handelCompanySummaryfunc(e *colly.HTMLElement) {
 
 func handelCompanyNamefunc(e *colly.HTMLElement) {
 	e.DOM.Find("span.entityIdentifier").Remove()
-	Data.CompanyName = strings.TrimSpace(e.DOM.Text())
+	Data.CompanyName = strings.TrimSpace(e.DOM.Find("div.row:first-child").Text())
+	fmt.Printf("CompanyName:%v\n", Data.CompanyName)
+
+	e.ForEach("div.previousNames > label", func(i int, element *colly.HTMLElement) {
+		PreviousName := new(PreviousName)
+		PreviousName.CompanyName = strings.TrimSpace(element.Text)
+		fmt.Printf("previousName:%v\n", PreviousName.CompanyName)
+		Data.PreviousNames = append(Data.PreviousNames, *PreviousName)
+	})
 }
 
 func handelOfficeAddressfunc(e *colly.HTMLElement) {
@@ -192,11 +207,11 @@ func main() {
 		colly.CacheDir("./cz_cache"),
 		colly.UserAgent("None"),
 	)
-	// 设置超时时间为20秒
+	// 设置超时时间为60秒
 	c.SetRequestTimeout(60 * time.Second)
 
 	c.OnHTML("div.readonly.companySummary", handelCompanySummaryfunc)
-	c.OnHTML("div.panelContainer > div.leftPanel > div.row:first-child", handelCompanyNamefunc)
+	c.OnHTML("div.panelContainer > div.leftPanel", handelCompanyNamefunc)
 	c.OnHTML("div #addressPanel", handelOfficeAddressfunc)
 	c.OnHTML("div #directorsPanel", handelDirectorfunc)
 	c.OnHTML("div #shareholdersPanel", handelShareholderfunc)
