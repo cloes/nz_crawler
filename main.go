@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -28,8 +29,8 @@ type Director struct {
 
 type PreviousName struct {
 	CompanyName string
-	StartDate   string
-	EndDate     string
+	From        string
+	To          string
 }
 
 type PageData struct {
@@ -112,9 +113,14 @@ func handelCompanyNamefunc(e *colly.HTMLElement) {
 	fmt.Printf("CompanyName:%v\n", Data.CompanyName)
 
 	e.ForEach("div.previousNames > label", func(i int, element *colly.HTMLElement) {
+		r, _ := regexp.Compile(`(.*)\(from (.*) to (.*)\)`)
+		PreviousNameData := r.FindStringSubmatch(strings.TrimSpace(element.Text))
+
 		PreviousName := new(PreviousName)
-		PreviousName.CompanyName = strings.TrimSpace(element.Text)
-		fmt.Printf("previousName:%v\n", PreviousName.CompanyName)
+		PreviousName.CompanyName = PreviousNameData[1]
+		PreviousName.From = PreviousNameData[2]
+		PreviousName.To = PreviousNameData[3]
+
 		Data.PreviousNames = append(Data.PreviousNames, *PreviousName)
 	})
 }

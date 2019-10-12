@@ -50,3 +50,14 @@ create table shareholder
 
 alter table shareholder owner to postgres;
 
+create table previous_name
+(
+	id serial not null
+		constraint previous_name_pk
+			primary key,
+	name varchar(256),
+	"from" varchar(256),
+	"to" varchar(256)
+);
+
+
