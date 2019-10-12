@@ -17,10 +17,22 @@ func insert(value *PageData) {
 	err := db.RunInTransaction(func(tx *pg.Tx) error {
 		fmt.Println("================")
 		companyNumber, _ := strconv.Atoi(Data.CompanyNumber)
-		_, err := tx.Exec("insert into company (company_number,name,nzbn,incorporation_date,company_status,entity_type,constitution_filed) values (?company_number,?company_name,?nzbn,?incorporation_date,?company_status,?entity_type,?constitution_filed) RETURNING id", value)
+
+		var companyID int
+		CompanyInsertSQL := "insert into company (company_number,name,nzbn,incorporation_date,company_status,entity_type,constitution_filed) values (?company_number,?company_name,?nzbn,?incorporation_date,?company_status,?entity_type,?constitution_filed) RETURNING id"
+		_, err := tx.Query(pg.Scan(&companyID), CompanyInsertSQL, value)
 
 		if err != nil {
 			return err
+		}
+
+		for _, PreviousName := range Data.PreviousNames {
+			PreviousNameInsertSQL := fmt.Sprintf("insert into previous_name(\"company_id\",\"name\",\"from\",\"to\") values (%d,?name,?from,?to)", companyID)
+			_, err = tx.Exec(PreviousNameInsertSQL, PreviousName)
+
+			if err != nil {
+				return err
+			}
 		}
 
 		for _, director := range Data.Directors {

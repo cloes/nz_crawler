@@ -28,9 +28,9 @@ type Director struct {
 }
 
 type PreviousName struct {
-	CompanyName string
-	From        string
-	To          string
+	Name string
+	From string
+	To   string
 }
 
 type PageData struct {
@@ -117,9 +117,9 @@ func handelCompanyNamefunc(e *colly.HTMLElement) {
 		PreviousNameData := r.FindStringSubmatch(strings.TrimSpace(element.Text))
 
 		PreviousName := new(PreviousName)
-		PreviousName.CompanyName = PreviousNameData[1]
-		PreviousName.From = PreviousNameData[2]
-		PreviousName.To = PreviousNameData[3]
+		PreviousName.Name = strings.TrimSpace(PreviousNameData[1])
+		PreviousName.From = strings.TrimSpace(PreviousNameData[2])
+		PreviousName.To = strings.TrimSpace(PreviousNameData[3])
 
 		Data.PreviousNames = append(Data.PreviousNames, *PreviousName)
 	})
