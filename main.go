@@ -49,7 +49,7 @@ type PageData struct {
 	PreviousNames           []PreviousName
 }
 
-var Data = new(PageData)
+var Data *PageData
 
 func handelCompanySummaryfunc(e *colly.HTMLElement) {
 	e.DOM.Find("div.readonly.companySummary > div.row:nth-child(1) > label.SCR011_04_003").Remove()
@@ -215,6 +215,7 @@ func main() {
 	)
 	// 设置超时时间为60秒
 	c.SetRequestTimeout(60 * time.Second)
+	c.MaxDepth=1
 
 	c.OnHTML("div.readonly.companySummary", handelCompanySummaryfunc)
 	c.OnHTML("div.panelContainer > div.leftPanel", handelCompanyNamefunc)
@@ -250,19 +251,21 @@ func main() {
 
 	// Set error handler
 	c.OnError(func(r *colly.Response, err error) {
-		//fmt.Println("Request URL:", r.Request.URL, "failed with response:", r, "\nError:", err)
 		fmt.Println("Request URL:", r.Request.URL, "failed with response:", r.StatusCode, "\nError:", err)
+		Data = new(PageData)
 	})
 
 	start := time.Now()
-	for companyNumber := 1830488; companyNumber < 1830488+1; companyNumber++ {
+	for companyNumber := 1830488; companyNumber < 1830488+25; companyNumber++ {
 		//c.Visit("https://app.companiesoffice.govt.nz/companies/app/ui/pages/companies/1908322")
 		//https://app.companiesoffice.govt.nz/companies/app/ui/pages/companies/1908322/detail
 		//https://app.companiesoffice.govt.nz/companies/app/ui/pages/companies/1830488/detail
+		Data = new(PageData)
 		c.Visit("https://app.companiesoffice.govt.nz/companies/app/ui/pages/companies/" + strconv.Itoa(companyNumber) + "/detail")
+
+		insert(Data)
 	}
 
-	insert(Data)
 	end := time.Since(start)
 	fmt.Println(end)
 
