@@ -204,6 +204,7 @@ func handelShareholderfunc(e *colly.HTMLElement) {
 }
 
 func main() {
+
 	// Instantiate default collector
 	c := colly.NewCollector(
 		colly.AllowedDomains("app.companiesoffice.govt.nz"),
@@ -215,7 +216,7 @@ func main() {
 	)
 	// 设置超时时间为60秒
 	c.SetRequestTimeout(60 * time.Second)
-	c.MaxDepth=1
+	c.MaxDepth = 1
 
 	c.OnHTML("div.readonly.companySummary", handelCompanySummaryfunc)
 	c.OnHTML("div.panelContainer > div.leftPanel", handelCompanyNamefunc)
@@ -239,15 +240,11 @@ func main() {
 		})
 	*/
 
-	/*
-		for CompanyNumber :=0; CompanyNumber < 10000000; CompanyNumber++  {
-			//https://app.companiesoffice.govt.nz/companies/app/ui/pages/companies/1908322
-			//http://app.companiesoffice.govt.nz/co/1908322
-
-			// Start scraping on http://coursera.com/browse
-			c.Visit("https://app.companiesoffice.govt.nz")
+	c.OnScraped(func(response *colly.Response) {
+		if response.StatusCode == 200 {
+			insert(Data)
 		}
-	*/
+	})
 
 	// Set error handler
 	c.OnError(func(r *colly.Response, err error) {
@@ -262,14 +259,10 @@ func main() {
 		//https://app.companiesoffice.govt.nz/companies/app/ui/pages/companies/1830488/detail
 		Data = new(PageData)
 		c.Visit("https://app.companiesoffice.govt.nz/companies/app/ui/pages/companies/" + strconv.Itoa(companyNumber) + "/detail")
-
-		insert(Data)
 	}
 
 	end := time.Since(start)
 	fmt.Println(end)
-
-	//c.Visit("https://app.companiesoffice.govt.nz/companies/app/ui/pages/companies/1908322") //OK
 
 	//enc := json.NewEncoder(os.Stdout)
 	//enc.SetIndent("", "  ")
