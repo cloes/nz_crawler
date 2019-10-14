@@ -61,6 +61,14 @@ func insert(value *PageData) {
 				}
 			}
 		}
+
+		AddressInsertSQL := fmt.Sprintf("insert into address (company_id,registered_office_address,address_for_service,address_for_shareregister) values (%d,?registered_office_address,?addressfor_service,?addressfor_share_register)", companyID)
+		_, err = tx.Exec(AddressInsertSQL, Data)
+
+		if err != nil {
+			return err
+		}
+
 		return nil
 	})
 

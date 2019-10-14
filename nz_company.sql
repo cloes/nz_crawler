@@ -62,3 +62,14 @@ create table shareholding_allocation
 );
 
 alter table shareholding_allocation owner to postgres;
+
+create table address
+(
+    id serial not null
+        constraint address_pk
+            primary key,
+    company_id integer,
+    registered_office_address varchar,
+    address_for_service varchar,
+    address_for_shareregister varchar
+);
