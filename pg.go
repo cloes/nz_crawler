@@ -25,7 +25,7 @@ func insert(value *PageData) {
 			return err
 		}
 
-		for _, PreviousName := range Data.PreviousNames {
+		for _, PreviousName := range value.PreviousNames {
 			PreviousNameInsertSQL := fmt.Sprintf("insert into previous_name(\"company_id\",\"name\",\"from\",\"to\") values (%d,?name,?from,?to)", companyID)
 			_, err = tx.Exec(PreviousNameInsertSQL, PreviousName)
 
@@ -34,7 +34,7 @@ func insert(value *PageData) {
 			}
 		}
 
-		for _, director := range Data.Directors {
+		for _, director := range value.Directors {
 			DirectorInsertSQL := fmt.Sprintf("insert into director (company_id,full_legal_name,residential_address,appointment_date) values (%d,?full_legal_name,?residential_address,?appointment_date)", companyID)
 			_, err = tx.Exec(DirectorInsertSQL, director)
 
@@ -44,7 +44,7 @@ func insert(value *PageData) {
 		}
 
 		var shareholdingAllocationId int
-		for _, allocation := range Data.ShareholderAllocations {
+		for _, allocation := range value.ShareholderAllocations {
 			ShareholderAllocationInsertSQL := fmt.Sprintf("insert into shareholding_allocation (company_id,percentage) values (%d,?percentage) RETURNING id", companyID)
 			_, err = tx.Query(pg.Scan(&shareholdingAllocationId), ShareholderAllocationInsertSQL, allocation)
 
@@ -63,7 +63,7 @@ func insert(value *PageData) {
 		}
 
 		AddressInsertSQL := fmt.Sprintf("insert into address (company_id,registered_office_address,address_for_service,address_for_shareregister) values (%d,?registered_office_address,?addressfor_service,?addressfor_share_register)", companyID)
-		_, err = tx.Exec(AddressInsertSQL, Data)
+		_, err = tx.Exec(AddressInsertSQL, value)
 
 		if err != nil {
 			return err
