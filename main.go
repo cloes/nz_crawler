@@ -229,17 +229,6 @@ func main() {
 		log.Println("visiting", r.URL.String())
 	})
 
-	// On every a HTML element which has name attribute call callback
-	/*
-		c.OnHTML(`a[name]`, func(e *colly.HTMLElement) {
-			// Activate detailCollector if the link contains "coursera.org/learn"
-			courseURL := e.Request.AbsoluteURL(e.Attr("href"))
-			if strings.Index(courseURL, "coursera.org/learn") != -1 {
-				detailCollector.Visit(courseURL)
-			}
-		})
-	*/
-
 	c.OnScraped(func(response *colly.Response) {
 		if response.StatusCode == 200 {
 			insert(Data)
