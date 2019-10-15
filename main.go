@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/gocolly/colly"
@@ -48,6 +49,8 @@ type PageData struct {
 	ShareholderAllocations  []Allocation
 	PreviousNames           []PreviousName
 }
+
+var wg sync.WaitGroup
 
 //var Data *PageData
 
@@ -198,18 +201,19 @@ func handelShareholderfunc(e *colly.HTMLElement) {
 
 func main() {
 	start := time.Now()
-	for companyNumber := 1830488; companyNumber < 1830488+1; companyNumber++ {
+	for companyNumber := 1830488; companyNumber < 1830488+10; companyNumber++ {
 		//c.Visit("https://app.companiesoffice.govt.nz/companies/app/ui/pages/companies/1908322")
 		//https://app.companiesoffice.govt.nz/companies/app/ui/pages/companies/1908322/detail
 		//https://app.companiesoffice.govt.nz/companies/app/ui/pages/companies/1830488/detail
 
 		//Data = new(PageData)
 		//c.Visit("https://app.companiesoffice.govt.nz/companies/app/ui/pages/companies/" + strconv.Itoa(companyNumber) + "/detail")
+		wg.Add(1)
 		url := "https://app.companiesoffice.govt.nz/companies/app/ui/pages/companies/" + strconv.Itoa(companyNumber) + "/detail"
 		go work(url)
 	}
 
-	//TODO：waitgroup
+	wg.Wait()
 	end := time.Since(start)
 	fmt.Println(end)
 
@@ -221,7 +225,8 @@ func main() {
 }
 
 func work(url string) {
-	//TODO：waitgroup
+
+	defer wg.Done()
 
 	Data := new(PageData)
 
