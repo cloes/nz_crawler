@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/go-pg/pg"
+	"strconv"
 )
 
 func insert(value *PageData) {
@@ -15,7 +16,7 @@ func insert(value *PageData) {
 
 	err := db.RunInTransaction(func(tx *pg.Tx) error {
 		fmt.Println("================")
-		//companyNumber, _ := strconv.Atoi(Data.CompanyNumber)
+		companyNumber, _ := strconv.Atoi(value.CompanyNumber)
 
 		var companyID int
 		CompanyInsertSQL := "insert into company (company_number,name,nzbn,incorporation_date,company_status,entity_type,constitution_filed) values (?company_number,?company_name,?nzbn,?incorporation_date,?company_status,?entity_type,?constitution_filed) RETURNING id"
@@ -26,7 +27,7 @@ func insert(value *PageData) {
 		}
 
 		for _, PreviousName := range value.PreviousNames {
-			PreviousNameInsertSQL := fmt.Sprintf("insert into previous_name(\"company_id\",\"name\",\"from\",\"to\") values (%d,?name,?from,?to)", companyID)
+			PreviousNameInsertSQL := fmt.Sprintf("insert into previous_name(\"company_num\",\"name\",\"from\",\"to\") values (%d,?name,?from,?to)", companyNumber)
 			_, err = tx.Exec(PreviousNameInsertSQL, PreviousName)
 
 			if err != nil {
@@ -35,7 +36,7 @@ func insert(value *PageData) {
 		}
 
 		for _, director := range value.Directors {
-			DirectorInsertSQL := fmt.Sprintf("insert into director (company_id,full_legal_name,residential_address,appointment_date) values (%d,?full_legal_name,?residential_address,?appointment_date)", companyID)
+			DirectorInsertSQL := fmt.Sprintf("insert into director (company_num,full_legal_name,residential_address,appointment_date) values (%d,?full_legal_name,?residential_address,?appointment_date)", companyNumber)
 			_, err = tx.Exec(DirectorInsertSQL, director)
 
 			if err != nil {
@@ -45,7 +46,7 @@ func insert(value *PageData) {
 
 		var shareholdingAllocationId int
 		for _, allocation := range value.ShareholderAllocations {
-			ShareholderAllocationInsertSQL := fmt.Sprintf("insert into shareholding_allocation (company_id,percentage) values (%d,?percentage) RETURNING id", companyID)
+			ShareholderAllocationInsertSQL := fmt.Sprintf("insert into shareholding_allocation (company_num,percentage) values (%d,?percentage) RETURNING id", companyNumber)
 			_, err = tx.Query(pg.Scan(&shareholdingAllocationId), ShareholderAllocationInsertSQL, allocation)
 
 			if err != nil {
@@ -62,7 +63,7 @@ func insert(value *PageData) {
 			}
 		}
 
-		AddressInsertSQL := fmt.Sprintf("insert into address (company_id,registered_office_address,address_for_service,address_for_shareregister) values (%d,?registered_office_address,?addressfor_service,?addressfor_share_register)", companyID)
+		AddressInsertSQL := fmt.Sprintf("insert into address (company_num,registered_office_address,address_for_service,address_for_shareregister) values (%d,?registered_office_address,?addressfor_service,?addressfor_share_register)", companyNumber)
 		_, err = tx.Exec(AddressInsertSQL, value)
 
 		if err != nil {

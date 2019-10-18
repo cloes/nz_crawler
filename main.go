@@ -216,12 +216,6 @@ func main() {
 	wg.Wait()
 	end := time.Since(start)
 	fmt.Println(end)
-
-	//enc := json.NewEncoder(os.Stdout)
-	//enc.SetIndent("", "  ")
-
-	// Dump json to the standard output
-	//enc.Encode(courses)
 }
 
 func work(url string) {

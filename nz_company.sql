@@ -19,7 +19,7 @@ create table director
     id serial not null
         constraint director_pkey
             primary key,
-    company_id integer,
+    company_num integer,
     full_legal_name varchar(256),
     residential_address text,
     appointment_date date
@@ -32,7 +32,7 @@ create table previous_name
     id serial not null
         constraint previous_name_pk
             primary key,
-    company_id integer not null,
+    company_num integer not null,
     name varchar(256),
     "from" varchar(256),
     "to" varchar(256)
@@ -57,7 +57,7 @@ create table shareholding_allocation
     id serial not null
         constraint shareholding_pkey
             primary key,
-    company_id integer,
+    company_num integer,
     percentage double precision
 );
 
@@ -68,7 +68,7 @@ create table address
     id serial not null
         constraint address_pk
             primary key,
-    company_id integer,
+    company_num integer,
     registered_office_address varchar,
     address_for_service varchar,
     address_for_shareregister varchar
