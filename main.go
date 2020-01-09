@@ -17,6 +17,11 @@ type Shareholder struct {
 	Address string
 }
 
+type HistoricShareholder struct {
+	FullLegalName string
+	VacationDate  string
+}
+
 type Allocation struct {
 	Percentage   float64
 	Shareholders []Shareholder //有可能两个shareholder共同占有一定比例的股份
@@ -201,7 +206,7 @@ func handelShareholderfunc(e *colly.HTMLElement) {
 
 func main() {
 	start := time.Now()
-	for companyNumber := 1830488; companyNumber < 1830488+10; companyNumber++ {
+	for companyNumber := 1830488; companyNumber < 1830488+1; companyNumber++ {
 		//c.Visit("https://app.companiesoffice.govt.nz/companies/app/ui/pages/companies/1908322")
 		//https://app.companiesoffice.govt.nz/companies/app/ui/pages/companies/1908322/detail
 		//https://app.companiesoffice.govt.nz/companies/app/ui/pages/companies/1830488/detail
@@ -248,16 +253,17 @@ func work(url string) {
 			})
 			Data.ShareholderAllocations = append(Data.ShareholderAllocations, *Allocation)
 		})
+	}
 
-		//for _, Allocation := range Data.ShareholderAllocations {
-		//	fmt.Println(Allocation.Percentage)
-		//	for _, holder := range Allocation.Shareholders {
-		//		fmt.Println(holder.Name2)
-		//		fmt.Println("***************")
-		//		fmt.Println(holder.Address)
-		//		fmt.Println("*******end********")
-		//	}
-		//}
+	handleHistoricShareholdersfunc := func(e *colly.HTMLElement) {
+		e.ForEach("div.shareholder", func(i int, element *colly.HTMLElement) {
+			HistoricShareholder := new(HistoricShareholder)
+			RowContent := element.ChildText("div.row")
+			RowContents := strings.Split(RowContent, ":")
+			HistoricShareholder.FullLegalName = strings.TrimSpace(RowContents[1])
+			HistoricShareholder.VacationDate = strings.TrimSpace(RowContents[2])
+			fmt.Printf("%+v\n", HistoricShareholder)
+		})
 	}
 
 	handelCompanySummaryfunc := func(e *colly.HTMLElement) {
@@ -367,12 +373,6 @@ func work(url string) {
 
 			Data.Directors = append(Data.Directors, *Director)
 		})
-
-		//for _,v := range Data.Directors {
-		//	fmt.Println(v.FullLegalName)
-		//	fmt.Println(v.ResidentialAddress)
-		//	fmt.Println(v.AppointmentDate)
-		//}
 	}
 
 	// Instantiate default collector
@@ -393,6 +393,7 @@ func work(url string) {
 	c.OnHTML("div #addressPanel", handelOfficeAddressfunc)
 	c.OnHTML("div #directorsPanel", handelDirectorfunc)
 	c.OnHTML("div #shareholdersPanel", handelShareholderfunc)
+	c.OnHTML("div .historic.wideLabel", handleHistoricShareholdersfunc)
 
 	// Before making a request print "Visiting ..."
 	c.OnRequest(func(r *colly.Request) {
