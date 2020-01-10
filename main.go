@@ -52,161 +52,15 @@ type PageData struct {
 	AddressforShareRegister string
 	Directors               []Director
 	ShareholderAllocations  []Allocation
+	HistoricShareholders    []HistoricShareholder
 	PreviousNames           []PreviousName
 }
 
 var wg sync.WaitGroup
 
-//var Data *PageData
-
-/*
-func handelCompanySummaryfunc(e *colly.HTMLElement) {
-	e.DOM.Find("div.readonly.companySummary > div.row:nth-child(1) > label.SCR011_04_003").Remove()
-	CompanyNumber := e.DOM.Find("div.readonly.companySummary > div.row:nth-child(1)").Text()
-	CompanyNumber = strings.Trim(CompanyNumber, "\n")
-	Data.CompanyNumber = CompanyNumber
-	fmt.Printf("CompanyNumber:%v\n", Data.CompanyNumber)
-
-	e.DOM.Find("div.readonly.companySummary > div.row:nth-child(2) > label.SCR011_04_003").Remove()
-	NZBN := e.DOM.Find("div.readonly.companySummary > div.row:nth-child(2)").Text()
-	NZBN = strings.Trim(NZBN, "\n")
-	Data.NZBN = NZBN
-	fmt.Printf("NZBN:%v\n", Data.NZBN)
-
-	e.DOM.Find("div.readonly.companySummary > div.row:nth-child(3) > label.SCR011_04_002").Remove()
-	IncorporationDate := e.DOM.Find("div.readonly.companySummary > div.row:nth-child(3)").Text()
-	IncorporationDate = strings.Trim(IncorporationDate, "\n")
-	Data.IncorporationDate = IncorporationDate
-	fmt.Printf("IncorporationDate:%v\n", Data.IncorporationDate)
-
-	e.DOM.Find("div.readonly.companySummary > div.row:nth-child(4) > label.SCR011_04_022").Remove()
-	CompanyStatus := e.DOM.Find("div.readonly.companySummary > div.row:nth-child(4)").Text()
-	CompanyStatus = strings.TrimSpace(CompanyStatus)
-	Data.CompanyStatus = CompanyStatus
-	fmt.Printf("CompanyStatus:%v\n", Data.CompanyStatus)
-
-	tmpElement := e.DOM.Find("div.readonly.companySummary > div.row").Has("label[for='entityType']")
-	EntityType := tmpElement.Contents().Eq(2).Text()
-	EntityType = strings.TrimSpace(EntityType)
-	Data.EntityType = EntityType
-	fmt.Printf("EntityType:%v\n", Data.EntityType)
-
-	tmpElement = e.DOM.Find("div.readonly.companySummary > div.row").Has("label[for='constitutionFiled']")
-	var ConstitutionFiled string
-	if tmpElement.Find("a").Text() == "" {
-		ConstitutionFiled = strings.TrimSpace(tmpElement.Contents().Eq(2).Text())
-	} else {
-		ConstitutionFiled = tmpElement.Find("a").Text()
-	}
-	Data.ConstitutionFiled = ConstitutionFiled
-	fmt.Printf("ConstitutionFiled:%v\n", Data.ConstitutionFiled)
-
-}
-
-func handelCompanyNamefunc(e *colly.HTMLElement) {
-	e.DOM.Find("span.entityIdentifier").Remove()
-	Data.CompanyName = strings.TrimSpace(e.DOM.Find("div.row:first-child").Text())
-	fmt.Printf("CompanyName:%v\n", Data.CompanyName)
-
-	e.ForEach("div.previousNames > label", func(i int, element *colly.HTMLElement) {
-		r, _ := regexp.Compile(`(.*)\(from (.*) to (.*)\)`)
-		PreviousNameData := r.FindStringSubmatch(strings.TrimSpace(element.Text))
-
-		PreviousName := new(PreviousName)
-		PreviousName.Name = strings.TrimSpace(PreviousNameData[1])
-		PreviousName.From = strings.TrimSpace(PreviousNameData[2])
-		PreviousName.To = strings.TrimSpace(PreviousNameData[3])
-
-		Data.PreviousNames = append(Data.PreviousNames, *PreviousName)
-	})
-}
-
-func handelOfficeAddressfunc(e *colly.HTMLElement) {
-	registeredOfficeAddress := e.ChildText("div:nth-child(3) > div.addressLine")
-	Data.RegisteredOfficeAddress = strings.Replace(registeredOfficeAddress, "\n", "", -1)
-
-	addressforService := e.ChildText("div:nth-child(5) > div.addressLine")
-	Data.AddressforService = strings.Replace(addressforService, "\n", "", -1)
-
-	addressforShareRegister := e.ChildText("div:nth-child(8) > div.addressLine")
-	Data.AddressforShareRegister = strings.Replace(addressforShareRegister, "\n", "", -1)
-}
-
-func handelDirectorfunc(e *colly.HTMLElement) {
-	e.ForEach("table", func(i int, element *colly.HTMLElement) {
-		Director := new(Director)
-
-		element.DOM.Find("div.row:nth-child(1) > label").Remove()
-		FullLegalName := element.DOM.Find("div.row:nth-child(1)").Text()
-		FullLegalName = strings.Replace(FullLegalName, "\n", "", -1)
-		FullLegalName = strings.Trim(FullLegalName, " ")
-		Director.FullLegalName = FullLegalName
-
-		element.DOM.Find("div.row:nth-child(2) > label").Remove()
-		ResidentialAddress := element.DOM.Find("div.row:nth-child(2)").Text()
-		ResidentialAddress = strings.Replace(ResidentialAddress, "\n", "", -1)
-		Director.ResidentialAddress = ResidentialAddress
-
-		element.DOM.Find("div.row:nth-child(3) > label").Remove()
-		AppointmentDate := element.DOM.Find("div.row:nth-child(3)").Text()
-		AppointmentDate = strings.Trim(AppointmentDate, "\n")
-		Director.AppointmentDate = AppointmentDate
-
-		Data.Directors = append(Data.Directors, *Director)
-	})
-
-	//for _,v := range Data.Directors {
-	//	fmt.Println(v.FullLegalName)
-	//	fmt.Println(v.ResidentialAddress)
-	//	fmt.Println(v.AppointmentDate)
-	//}
-}
-*/
-
-/*
-func handelShareholderfunc(e *colly.HTMLElement) {
-	e.ForEach("div.allocationDetail", func(i int, element *colly.HTMLElement) {
-		Allocation := new(Allocation)
-
-		SharePercentage := element.ChildText("span.shareLabel")
-		SharePercentage = strings.ReplaceAll(SharePercentage, "(", "")
-		SharePercentage = strings.ReplaceAll(SharePercentage, ")", "")
-		SharePercentage = strings.ReplaceAll(SharePercentage, "%", "")
-		Allocation.Percentage, _ = strconv.ParseFloat(SharePercentage, 64)
-
-		Shareholder := new(Shareholder)
-		element.ForEach("div.labelValue.col2", func(j int, DivElement *colly.HTMLElement) {
-			if j%2 == 0 {
-				ShareholderName := strings.TrimSpace(DivElement.Text)
-				Shareholder.Name = ShareholderName
-			} else {
-				ShareholderAddress := strings.TrimSpace(DivElement.Text)
-				ShareholderAddress = strings.ReplaceAll(ShareholderAddress, "\n", "")
-				Shareholder.Address = ShareholderAddress
-				Allocation.Shareholders = append(Allocation.Shareholders, *Shareholder)
-			}
-		})
-		Data.ShareholderAllocations = append(Data.ShareholderAllocations, *Allocation)
-	})
-
-
-	//for _, Allocation := range Data.ShareholderAllocations {
-	//	fmt.Println(Allocation.Percentage)
-	//	for _, holder := range Allocation.Shareholders {
-	//		fmt.Println(holder.Name2)
-	//		fmt.Println("***************")
-	//		fmt.Println(holder.Address)
-	//		fmt.Println("*******end********")
-	//	}
-	//}
-
-}
-
-*/
-
 func main() {
 	start := time.Now()
-	for companyNumber := 1830488; companyNumber < 1830488+1; companyNumber++ {
+	for companyNumber := 1830488; companyNumber < 1830488+10; companyNumber++ {
 		//c.Visit("https://app.companiesoffice.govt.nz/companies/app/ui/pages/companies/1908322")
 		//https://app.companiesoffice.govt.nz/companies/app/ui/pages/companies/1908322/detail
 		//https://app.companiesoffice.govt.nz/companies/app/ui/pages/companies/1830488/detail
@@ -262,7 +116,9 @@ func work(url string) {
 			RowContents := strings.Split(RowContent, ":")
 			HistoricShareholder.FullLegalName = strings.TrimSpace(RowContents[1])
 			HistoricShareholder.VacationDate = strings.TrimSpace(RowContents[2])
-			fmt.Printf("%+v\n", HistoricShareholder)
+			//fmt.Printf("%+v\n", HistoricShareholder)
+
+			Data.HistoricShareholders = append(Data.HistoricShareholders, *HistoricShareholder)
 		})
 	}
 

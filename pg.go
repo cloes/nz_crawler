@@ -63,6 +63,15 @@ func insert(value *PageData) {
 			}
 		}
 
+		for _, historicShareholder := range value.HistoricShareholders {
+			HistoricShareholderInsertSQL := fmt.Sprintf("insert into historicshareholder (company_num,full_legal_name,vacation_date) values (%d,?full_legal_name,?vacation_date)", companyNumber)
+			_, err := tx.Exec(HistoricShareholderInsertSQL, historicShareholder)
+
+			if err != nil {
+				return err
+			}
+		}
+
 		AddressInsertSQL := fmt.Sprintf("insert into address (company_num,registered_office_address,address_for_service,address_for_shareregister) values (%d,?registered_office_address,?addressfor_service,?addressfor_share_register)", companyNumber)
 		_, err = tx.Exec(AddressInsertSQL, value)
 
